@@ -1,12 +1,14 @@
 package it.gbs.weather.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
-import it.gbs.weather.model.GetDaily;
-import it.gbs.weather.model.GetDailyToReturn;
+import it.gbs.weather.exception.WeatherErrorMessage;
 import it.gbs.weather.service.OpenWeatherService;
 
 @RestController
@@ -17,24 +19,26 @@ public class WeatherForecastController {
 	
 	@RequestMapping("/getNextTwoDaysWeatherByCityName")
 	@ResponseBody
-	public GetDaily getNextTwoDaysWeatherByCityName(String cityName) throws Exception {
+	public ResponseEntity<Object> getNextTwoDaysWeatherByCityName(String cityName) throws Exception {
 		try {
-			return openWeatherService.getNextTwoDayWeather(cityName);
+			return new ResponseEntity<>(openWeatherService.getNextTwoDayWeather(cityName),HttpStatus.OK);
 		}catch(Exception e) {
 			e.printStackTrace();
-			throw e;
+			return new ResponseEntity<Object>(
+					new WeatherErrorMessage(e), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
 		
 	}
 	
 	@RequestMapping("/getNextTwoDaysWeatherByCityNameFormatted")
 	@ResponseBody
-	public GetDailyToReturn getNextTwoDaysWeatherByCityNameFormatted(String cityName) throws Exception {
+	public ResponseEntity<Object> getNextTwoDaysWeatherByCityNameFormatted(String cityName) {
 		try {
-			return openWeatherService.getNextTwoDayWeatherFormatted(cityName);
+			return new ResponseEntity<>(openWeatherService.getNextTwoDayWeatherFormatted(cityName),HttpStatus.OK);
 		}catch(Exception e) {
 			e.printStackTrace();
-			throw e;
+			return new ResponseEntity<Object>(
+					new WeatherErrorMessage(e), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
 		
 	}

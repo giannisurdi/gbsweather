@@ -28,35 +28,54 @@ public class OpenWeatherServiceImpl implements OpenWeatherService {
 	public GetDaily getNextTwoDayWeather(String cityName) throws Exception{
 		Coordinates coordinates = getCoordinates(cityName);
 		RestTemplate restTemplate = new RestTemplate();
-		GetDaily daylies = restTemplate
-				  .getForObject(hourlyUrl + "?lat=" + coordinates.getLat() + 
-						  "&lon=" + coordinates.getLon() + 
-						  "&exclude=minutely,hourly,current,alerts" + 
-						  "&units=metric" + 
-						  "&appid=" + appId, GetDaily.class);
-		daylies.setCityName(cityName);
+		GetDaily daylies = new GetDaily();
+		try {
+			daylies = restTemplate
+					  .getForObject(hourlyUrl + "?lat=" + coordinates.getLat() + 
+							  "&lon=" + coordinates.getLon() + 
+							  "&exclude=minutely,hourly,current,alerts" + 
+							  "&units=metric" + 
+							  "&appid=" + appId, GetDaily.class);
+			daylies.setCityName(cityName);
+			
+			//leave only two days forecast
+			if(daylies.getDaily().size() >= 7) {
+				for(int i = 7 ; i > 2 ; i--) {
+					daylies.getDaily().remove(i);
+				}
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
 		return daylies;
 	}
 
 	@Override
 	public Coordinates getCoordinates(String cityName) throws Exception{
+		
+		if(cityName == null) {
+			throw new Exception("Given cityName is null");
+		}
+		
 		RestTemplate restTemplate = new RestTemplate();
-		GetCurrent getCurrent = restTemplate
-				  .getForObject(currentUrl + "?q=" + cityName + "&appid=" + appId, GetCurrent.class);
+		GetCurrent getCurrent = new GetCurrent();
+		
+		try {
+			getCurrent = restTemplate
+					  .getForObject(currentUrl + "?q=" + cityName + "&appid=" + appId, GetCurrent.class);
+		}catch(Exception e) {
+			e.printStackTrace();
+			throw e;
+		}
+		
 		return getCurrent.getCoord();
 	}
 
 	@Override
 	public GetDailyToReturn getNextTwoDayWeatherFormatted(String cityName) throws Exception {
-		Coordinates coordinates = getCoordinates(cityName);
-		RestTemplate restTemplate = new RestTemplate();
-		GetDaily daylies = restTemplate
-				  .getForObject(hourlyUrl + "?lat=" + coordinates.getLat() + 
-						  "&lon=" + coordinates.getLon() + 
-						  "&exclude=minutely,hourly,current,alerts" + 
-						  "&units=metric" + 
-						  "&appid=" + appId, GetDaily.class);
-		daylies.setCityName(cityName);
+		GetDaily daylies = getNextTwoDayWeather(cityName);
 		return convertToGetDailyToReturn(daylies);
 	}
 	
