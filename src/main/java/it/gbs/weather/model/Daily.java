@@ -52,9 +52,12 @@ public class Daily implements Serializable{
 		this.humidity = humidity;
 	}
 	
+	/*
+	 * Format timestamp in yyyy/MM/dd HH:mm:ss
+	 */
 	public String getDateTime() {
 	    Date date = new Date(dt*1000);
-	    Format format = new SimpleDateFormat("yyyy MM dd HH:mm:ss");
+	    Format format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	    return format.format(date);
 	}
 

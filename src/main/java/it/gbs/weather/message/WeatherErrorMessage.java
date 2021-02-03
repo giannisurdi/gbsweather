@@ -1,4 +1,4 @@
-package it.gbs.weather.exception;
+package it.gbs.weather.message;
 
 public class WeatherErrorMessage {
 	

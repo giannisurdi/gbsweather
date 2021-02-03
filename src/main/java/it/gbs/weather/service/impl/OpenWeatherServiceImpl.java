@@ -8,10 +8,10 @@ import org.springframework.web.client.RestTemplate;
 
 import it.gbs.weather.model.Coordinates;
 import it.gbs.weather.model.Daily;
-import it.gbs.weather.model.DailyToReturn;
+import it.gbs.weather.model.DailyFormatted;
 import it.gbs.weather.model.GetCurrent;
 import it.gbs.weather.model.GetDaily;
-import it.gbs.weather.model.GetDailyToReturn;
+import it.gbs.weather.model.GetDailyFormatted;
 import it.gbs.weather.service.OpenWeatherService;
 
 @Service
@@ -22,39 +22,48 @@ public class OpenWeatherServiceImpl implements OpenWeatherService {
 	@Value( "${openweather.get.current.url}" )
 	private String currentUrl;
 	
-	@Value( "${openweather.get.hourly.url}" )
-	private String hourlyUrl;
+	@Value( "${openweather.get.week.url}" )
+	private String weekUrl;
 	
 	@Value( "${openweather.key}" )
 	private String appId;
 
+	/**
+	 * Retrieve weather forecast of next two days
+	 */
 	@Override
 	public GetDaily getNextTwoDayWeather(String cityName) throws Exception{
 		Coordinates coordinates = getCoordinates(cityName);
 		RestTemplate restTemplate = new RestTemplate();
-		GetDaily daylies = new GetDaily();
+		GetDaily daily = new GetDaily();
 		try {
-			daylies = restTemplate
-					  .getForObject(hourlyUrl + "?lat=" + coordinates.getLat() + 
+			logger.debug("send getNextTwoDays request");
+			
+			//retrieve week forecast
+			daily = restTemplate
+					  .getForObject(weekUrl + "?lat=" + coordinates.getLat() + 
 							  "&lon=" + coordinates.getLon() + 
 							  "&exclude=minutely,hourly,current,alerts" + 
 							  "&units=metric" + 
 							  "&appid=" + appId, GetDaily.class);
-			daylies.setCityName(cityName);
+			daily.setCityName(cityName);
 			
-			//leave only two days forecast
-			if(daylies.getDaily().size() >= 7) {
+			//leave only first two days forecast
+			if(daily.getDaily().size() >= 7) {
 				for(int i = 7 ; i > 2 ; i--) {
-					daylies.getDaily().remove(i);
+					daily.getDaily().remove(i);
 				}
 			}
 		}catch(Exception e) {
 			throw e;
 		}
 		
-		return daylies;
+		return daily;
 	}
 
+	/**
+	 * Retrieve coordinates from cityName
+	 */
 	@Override
 	public Coordinates getCoordinates(String cityName) throws Exception{
 		
@@ -66,23 +75,37 @@ public class OpenWeatherServiceImpl implements OpenWeatherService {
 		GetCurrent getCurrent = new GetCurrent();
 		
 		try {
+			/*
+			 * Send getCurrentWeather request for getting coordinates of cityName.
+			 * Retrieved coordinates will be used to perform one call request to get next two days 
+			 * weather forecast.
+			 */
+			logger.debug("send getCurrentWeather request");
 			getCurrent = restTemplate
 					  .getForObject(currentUrl + "?q=" + cityName + "&appid=" + appId, GetCurrent.class);
 		}catch(Exception e) {
 			throw e;
 		}
 		
+		logger.debug("Coordinates of " + cityName + ": " + getCurrent.getCoord());
+		
 		return getCurrent.getCoord();
 	}
 
+	/**
+	 * Retrieve weather forecast of next two days formatted
+	 */
 	@Override
-	public GetDailyToReturn getNextTwoDayWeatherFormatted(String cityName) throws Exception {
+	public GetDailyFormatted getNextTwoDayWeatherFormatted(String cityName) throws Exception {
 		GetDaily daylies = getNextTwoDayWeather(cityName);
 		return convertToGetDailyToReturn(daylies);
 	}
 	
-	private GetDailyToReturn convertToGetDailyToReturn(GetDaily dailies) {
-		GetDailyToReturn getDailyToReturn = new GetDailyToReturn();
+	/**
+	 * convert GetDaily object to GetDailyFormatted
+	 */
+	private GetDailyFormatted convertToGetDailyToReturn(GetDaily dailies) {
+		GetDailyFormatted getDailyToReturn = new GetDailyFormatted();
 				
 		try {
 			getDailyToReturn.setCityName(dailies.getCityName());
@@ -98,8 +121,11 @@ public class OpenWeatherServiceImpl implements OpenWeatherService {
 		return getDailyToReturn;
 	}
 	
-	private DailyToReturn convertToDailyToReturn(Daily daily) {
-		DailyToReturn dailyToReturn = new DailyToReturn();
+	/**
+	 * convert Daily object to DailyFormatted
+	 */
+	private DailyFormatted convertToDailyToReturn(Daily daily) {
+		DailyFormatted dailyToReturn = new DailyFormatted();
 		
 		try {
 			dailyToReturn.setMaximum(daily.getTemp().getMax() + " °C");

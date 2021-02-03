@@ -28,5 +28,11 @@ public class Coordinates implements Serializable{
 	public void setLon(Double lon) {
 		this.lon = lon;
 	}
+	
+	@Override
+	public String toString() {
+		return  "Lat: " + lat + 
+				", Lon: " + lon;
+	}
 
 }

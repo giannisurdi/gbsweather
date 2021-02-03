@@ -2,7 +2,7 @@ package it.gbs.weather.service;
 
 import it.gbs.weather.model.Coordinates;
 import it.gbs.weather.model.GetDaily;
-import it.gbs.weather.model.GetDailyToReturn;
+import it.gbs.weather.model.GetDailyFormatted;
 
 public interface OpenWeatherService {
 	
@@ -10,6 +10,6 @@ public interface OpenWeatherService {
 	
 	Coordinates getCoordinates(String cityName) throws Exception;
 	
-	GetDailyToReturn getNextTwoDayWeatherFormatted(String cityName) throws Exception;
+	GetDailyFormatted getNextTwoDayWeatherFormatted(String cityName) throws Exception;
 
 }

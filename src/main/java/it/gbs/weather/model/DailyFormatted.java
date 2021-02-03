@@ -2,7 +2,7 @@ package it.gbs.weather.model;
 
 import java.io.Serializable;
 
-public class DailyToReturn implements Serializable{
+public class DailyFormatted implements Serializable{
 
 	/**
 	 * 
