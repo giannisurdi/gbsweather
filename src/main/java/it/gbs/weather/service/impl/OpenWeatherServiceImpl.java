@@ -1,5 +1,7 @@
 package it.gbs.weather.service.impl;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -14,6 +16,8 @@ import it.gbs.weather.service.OpenWeatherService;
 
 @Service
 public class OpenWeatherServiceImpl implements OpenWeatherService {
+	
+	private static final Logger logger = LoggerFactory.getLogger(OpenWeatherServiceImpl.class);
 	
 	@Value( "${openweather.get.current.url}" )
 	private String currentUrl;
@@ -45,7 +49,6 @@ public class OpenWeatherServiceImpl implements OpenWeatherService {
 				}
 			}
 		}catch(Exception e) {
-			e.printStackTrace();
 			throw e;
 		}
 		
@@ -66,7 +69,6 @@ public class OpenWeatherServiceImpl implements OpenWeatherService {
 			getCurrent = restTemplate
 					  .getForObject(currentUrl + "?q=" + cityName + "&appid=" + appId, GetCurrent.class);
 		}catch(Exception e) {
-			e.printStackTrace();
 			throw e;
 		}
 		
@@ -90,7 +92,7 @@ public class OpenWeatherServiceImpl implements OpenWeatherService {
 				}
 			}
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error("Error in convertToGetDailyToReturn", e);
 		}
 		
 		return getDailyToReturn;
@@ -105,7 +107,7 @@ public class OpenWeatherServiceImpl implements OpenWeatherService {
 			dailyToReturn.setHumidity(daily.getHumidity() + " %");
 			dailyToReturn.setDateTime(daily.getDateTime());
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error("Error in convertToDailyToReturn", e);
 		}
 		
 		return dailyToReturn;

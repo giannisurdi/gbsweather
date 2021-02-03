@@ -1,5 +1,7 @@
 package it.gbs.weather.controller;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,6 +16,8 @@ import it.gbs.weather.service.OpenWeatherService;
 @RestController
 public class WeatherForecastController {
 	
+	private static final Logger logger = LoggerFactory.getLogger(WeatherForecastController.class);
+	
 	@Autowired
 	private OpenWeatherService openWeatherService;
 	
@@ -23,7 +27,7 @@ public class WeatherForecastController {
 		try {
 			return new ResponseEntity<>(openWeatherService.getNextTwoDayWeather(cityName),HttpStatus.OK);
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error("Error in getNextTwoDaysWeatherByCityName", e);
 			return new ResponseEntity<Object>(
 					new WeatherErrorMessage(e), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
@@ -36,7 +40,7 @@ public class WeatherForecastController {
 		try {
 			return new ResponseEntity<>(openWeatherService.getNextTwoDayWeatherFormatted(cityName),HttpStatus.OK);
 		}catch(Exception e) {
-			e.printStackTrace();
+			logger.error("Error in getNextTwoDaysWeatherByCityNameFormatted", e);
 			return new ResponseEntity<Object>(
 					new WeatherErrorMessage(e), new HttpHeaders(), HttpStatus.BAD_REQUEST);
 		}
