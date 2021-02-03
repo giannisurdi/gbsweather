@@ -6,8 +6,8 @@ SpringBoot project that, using OpenWeather APIs free (https://openweathermap.org
 - humidity. 
 
 For building and running the application you need:
-JDK 1.8
-Maven 3
+- JDK 1.8
+- Maven 3
 
-For launch maven build, run the following command: mvn clean install
+For launch maven build, run the following command: mvn clean install .
 For run the application on your local machine, execute the main method in the it.gbs.weather.Main class from your IDE.
